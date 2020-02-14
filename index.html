@@ -1,0 +1,187 @@
+<html>
+<head>
+	<style>
+		.imageWrapper {
+		  position: relative;
+		}
+		.overlayImage {
+		  position: absolute;
+		  top: 0;
+		  left: 0;
+		}
+		#drop-area {
+		  border: 2px dashed #ccc;
+		  border-radius: 20px;
+		  width: 480px;
+		  font-family: sans-serif;
+		  margin: 100px auto;
+		  padding: 20px;
+		}
+		#drop-area.highlight {
+		  border-color: purple;
+		}
+		p {
+		  margin-top: 0;
+		}
+		.my-form {
+		  margin-bottom: 10px;
+		}
+		#gallery {
+		  margin-top: 10px;
+		}
+		#gallery img {
+		  width: 150px;
+		  margin-bottom: 10px;
+		  margin-right: 10px;
+		  vertical-align: middle;
+		}
+		.button {
+		  display: inline-block;
+		  padding: 10px;
+		  background: #ccc;
+		  cursor: pointer;
+		  border-radius: 5px;
+		  border: 1px solid #ccc;
+		}
+		.button:hover {
+		  background: #ddd;
+		}
+		#fileElem {
+		  display: none;
+		}
+		
+		#texture {
+			top: 0px;
+			left: 210px;
+			width: 600px;
+			height: auto;
+			min-height: 440px;
+		}
+	</style>
+</head>
+<body>
+	<div id="drop-area">
+	  <form class="my-form">
+		<p>Upload multiple files with the file dialog or by dragging and dropping images onto the dashed region</p>
+		<input type="file" id="fileElem" multiple accept="image/*" onchange="handleFiles(this.files)">
+		<label class="button" for="fileElem">Select some files</label>
+	  </form>
+	  <div id="gallery" /></div>
+	</div>
+	
+	<div id='textureheader'>DRAG HERE TO MOVE TEXTURE</div>
+
+	<div class='imageWrapper'>
+		<div id='moveable'>
+			<img id='texture' class='overlayImage' src='./resources/test-marble-001.jpg'>
+		</div>
+		<img class='overlayImage' src='./resources/marble-feature-wall.png'/ onclick='this.preventDefault()'>
+	</div>
+	
+	<script>
+		// ************************ Drag Image ******************** //
+		
+		// Make the DIV element draggable:
+		dragElement(document.getElementById("texture"));
+
+		function dragElement(elmnt) {
+		  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+		  if (document.getElementById(elmnt.id + "header")) {
+			// if present, the header is where you move the DIV from:
+			document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
+		  } else {
+			// otherwise, move the DIV from anywhere inside the DIV:
+			elmnt.onmousedown = dragMouseDown;
+		  }
+
+		  function dragMouseDown(e) {
+			e = e || window.event;
+			e.preventDefault();
+			// get the mouse cursor position at startup:
+			pos3 = e.clientX;
+			pos4 = e.clientY;
+			document.onmouseup = closeDragElement;
+			// call a function whenever the cursor moves:
+			document.onmousemove = elementDrag;
+		  }
+
+		  function elementDrag(e) {
+			e = e || window.event;
+			e.preventDefault();
+			// calculate the new cursor position:
+			pos1 = pos3 - e.clientX;
+			pos2 = pos4 - e.clientY;
+			pos3 = e.clientX;
+			pos4 = e.clientY;
+			// set the element's new position:
+			elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+			elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+		  }
+
+		  function closeDragElement() {
+			// stop moving when mouse button is released:
+			document.onmouseup = null;
+			document.onmousemove = null;
+		  }
+		}
+		
+		// ************************ Drag and drop ***************** //
+		let dropArea = document.getElementById("drop-area")
+
+		// Prevent default drag behaviors
+		;['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+		  dropArea.addEventListener(eventName, preventDefaults, false)   
+		  document.body.addEventListener(eventName, preventDefaults, false)
+		})
+
+		// Highlight drop area when item is dragged over it
+		;['dragenter', 'dragover'].forEach(eventName => {
+		  dropArea.addEventListener(eventName, highlight, false)
+		})
+
+		;['dragleave', 'drop'].forEach(eventName => {
+		  dropArea.addEventListener(eventName, unhighlight, false)
+		})
+
+		// Handle dropped files
+		dropArea.addEventListener('drop', handleDrop, false)
+
+		function preventDefaults (e) {
+		  e.preventDefault()
+		  e.stopPropagation()
+		}
+
+		function highlight(e) {
+		  dropArea.classList.add('highlight')
+		}
+
+		function unhighlight(e) {
+		  dropArea.classList.remove('active')
+		}
+
+		function handleDrop(e) {
+		  var dt = e.dataTransfer
+		  var files = dt.files
+		  var source = e.dataTransfer.getData('text/html').match(/src="(.+?)"/g)[0].replace("src=","").replace(/"/g,"");
+		  
+		  if (files && files[0]) {
+			handleFile(files[0])
+		  } else if(source) {
+			handleSource(source)
+		  }
+		}
+		
+		function handleSource(source) {
+		  var img = document.querySelector('#texture');  // $('img')[0]
+		  img.src = source
+
+		}
+
+		function handleFile(file) {
+		  var img = document.querySelector('#texture');  // $('img')[0]
+		  img.src = URL.createObjectURL(file); // set src to blob url
+		}
+	</script>
+	
+</body>
+</html>
