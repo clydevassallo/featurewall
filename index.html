@@ -63,7 +63,7 @@
 	<div id="drop-area">
 	  <form class="my-form">
 		<p>Drag and drop and image here to apply it as a texture on the feature wall</p>
-		<input type="file" id="fileElem" accept="image/*" onchange="handleFiles(this.files)">
+		<input type="file" id="fileElem" accept="image/*" onchange="handleFile(this.files[0])">
 		<label class="button" for="fileElem">Select an image file</label>
 	  </form>
 	  <div id="gallery" /></div>
